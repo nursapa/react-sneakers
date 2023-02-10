@@ -14,24 +14,31 @@ function App() {
   const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("https://63a44d4d2a73744b0073637b.mockapi.io/items")
-      .then((res) => setItems(res.data));
-    axios
-      .get("https://63a44d4d2a73744b0073637b.mockapi.io/cart")
-      .then((res) => setCardItems(res.data));
-    axios
-      .get("https://63a44d4d2a73744b0073637b.mockapi.io/favorites")
-      .then((res) => setFavorites(res.data));
+    async function fetchData() {
+      const cartResponse = await axios.get(
+        "https://63a44d4d2a73744b0073637b.mockapi.io/cart"
+      );
+      const favoritesResponse = await axios.get(
+        "https://63a44d4d2a73744b0073637b.mockapi.io/favorites"
+      );
+      const itemsResponse = await axios.get(
+        "https://63a44d4d2a73744b0073637b.mockapi.io/items"
+      );
+
+      setCardItems(cartResponse.data);
+      setFavorites(favoritesResponse.data);
+      setItems(itemsResponse.data);
+    }
+    fetchData();
   }, []);
 
   const onAddToCard = (obj) => {
     try {
-      if (cardItems.find((elem) => elem.id === obj.id)) {
-        setCardItems((prev) => prev.filter((item) => item.id !== obj.id));
+      if (cardItems.find((elem) => elem.title === obj.title)) {
+        setCardItems((prev) => prev.filter((item) => item.title !== obj.title));
       } else {
         axios.post("https://63a44d4d2a73744b0073637b.mockapi.io/cart", obj);
-        setCardItems((prev) => (prev.includes(obj) ? null : [...prev, obj]));
+        setCardItems((prev) => [...prev, obj]);
       }
     } catch (error) {
       alert("Не удалось добавить в корзину");
@@ -45,7 +52,7 @@ function App() {
 
   const onAddToFavorite = async (obj) => {
     try {
-      if (favorites.find((elem) => obj.title === Number(elem.title))) {
+      if (favorites.find((elem) => obj.title === elem.title)) {
         axios.delete(
           `https://63a44d4d2a73744b0073637b.mockapi.io/favorites/${obj.id}`
         );
@@ -83,6 +90,7 @@ function App() {
           element={
             <Home
               items={items}
+              cardItems={cardItems}
               searchValue={searchValue}
               setSearchValue={setSearchValue}
               onAddToCard={onAddToCard}

@@ -2,6 +2,7 @@ import Card from "../components/Card/Card";
 
 function Home({
   items,
+  cardItems,
   searchValue,
   setSearchValue,
   onAddToCard,
@@ -42,6 +43,7 @@ function Home({
               key={index}
               onFavorite={(obj) => onAddToFavorite(obj)}
               onPlus={(obj) => onAddToCard(obj)}
+              added={cardItems.some((obj) => obj.title === item.title)}
               {...item}
             />
           ))}
